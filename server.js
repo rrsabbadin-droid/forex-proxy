@@ -8,7 +8,7 @@ app.use(express.json());
 
 const API_KEY = process.env.ANTHROPIC_API_KEY;
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static('public'));
 
 app.post('/chat', async (req, res) => {
   try {
@@ -29,7 +29,8 @@ app.post('/chat', async (req, res) => {
 });
 
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile('index.html', { root: 'public' });
 });
 
-app.listen(3000, () => console.log('Servidor rodando na porta 3000'));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log('Servidor rodando na porta ' + PORT));
