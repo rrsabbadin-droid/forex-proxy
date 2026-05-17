@@ -1,11 +1,14 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 const API_KEY = process.env.ANTHROPIC_API_KEY;
+
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.post('/chat', async (req, res) => {
   try {
@@ -25,6 +28,8 @@ app.post('/chat', async (req, res) => {
   }
 });
 
-app.get('/', (req, res) => res.send('FOREX.AI Proxy online ✅'));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
-app.listen(3000, () => console.log('Proxy rodando na porta 3000'));
+app.listen(3000, () => console.log('Servidor rodando na porta 3000'));
