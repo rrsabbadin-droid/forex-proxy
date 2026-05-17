@@ -1,14 +1,18 @@
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-const API_KEY = process.env.ANTHROPIC_API_KEY;
+app.use((req, res, next) => {
+  res.setHeader("Content-Security-Policy", "default-src 'self' 'unsafe-eval' 'unsafe-inline' https://forex-proxy-05j8.onrender.com; connect-src 'self' https://api.anthropic.com https://forex-proxy-05j8.onrender.com;");
+  next();
+});
 
 app.use(express.static('public'));
+
+const API_KEY = process.env.ANTHROPIC_API_KEY;
 
 app.post('/chat', async (req, res) => {
   try {
