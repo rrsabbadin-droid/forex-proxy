@@ -1,18 +1,22 @@
 const express = require('express');
 const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use((req, res, next) => {
-  res.setHeader("Content-Security-Policy", "default-src 'self' 'unsafe-eval' 'unsafe-inline' https://forex-proxy-05j8.onrender.com; connect-src 'self' https://api.anthropic.com https://forex-proxy-05j8.onrender.com;");
+const API_KEY = process.env.ANTHROPIC_API_KEY;
+
+// Remove CSP header that Render injects, then add our own permissive one
+app.use(function(req, res, next) {
+  res.removeHeader('Content-Security-Policy');
+  res.removeHeader('X-Content-Security-Policy');
+  res.removeHeader('X-WebKit-CSP');
+  res.setHeader('Content-Security-Policy', "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;");
   next();
 });
-
-app.use(express.static('public'));
-
-const API_KEY = process.env.ANTHROPIC_API_KEY;
 
 app.post('/chat', async (req, res) => {
   try {
@@ -33,7 +37,7 @@ app.post('/chat', async (req, res) => {
 });
 
 app.get('*', (req, res) => {
-  res.sendFile('index.html', { root: 'public' });
+  res.sendFile('index.html', { root: path.join(process.cwd(), 'public') });
 });
 
 const PORT = process.env.PORT || 3000;
