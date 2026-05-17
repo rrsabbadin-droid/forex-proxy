@@ -165,7 +165,7 @@ var QUICK = [
 
 var SYSTEM = 'Você é o FOREX.AI, especialista em análise fundamentalista do Forex. Analisa: EUR/USD, GBP/USD, USD/JPY, USD/CHF, USD/CAD, NZD/USD, AUD/USD, XAU/USD e BTC/USD. Para cada análise: 1) Sentimento BULLISH ou BEARISH ou NEUTRO 2) Diferencial de juros entre bancos centrais 3) Dados macro: CPI, NFP, PIB, PMI 4) Contexto: risk-on vs risk-off, DXY 5) Perspectiva curto e médio prazo. Responda sempre em português brasileiro de forma clara e educativa.';
 
-var sel = null, isRec = false, isSpeaking = false, rec = null, history = [];
+var sel = null, isRec = false, isSpeaking = false, rec = null, chatHistory = [];
 
 function renderPairs() {
   var g = document.getElementById('pairsGrid');
@@ -248,20 +248,20 @@ async function send() {
   inp.value = '';
   document.getElementById('sendBtn').disabled = true;
   addMsg('user', text, false);
-  history.push({role:'user', content:text});
+  chatHistory.push({role:'user', content:text});
   var typing = addTyping();
   try {
     var res = await fetch(PROXY_URL+'/chat', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:SYSTEM,messages:history})
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:SYSTEM,messages:chatHistory})
     });
     var data = await res.json();
     typing.remove();
     var ai = '';
     if(data.content) data.content.forEach(function(b){if(b.type==='text') ai+=b.text;});
     if(!ai) ai = 'Desculpe, não consegui processar. Tente novamente.';
-    history.push({role:'assistant',content:ai});
+    chatHistory.push({role:'assistant',content:ai});
     addMsg('assistant', ai, true);
     speakText(ai, null);
   } catch(e) {
